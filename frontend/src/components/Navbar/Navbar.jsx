@@ -1,8 +1,18 @@
 import { Link, useNavigate } from "react-router-dom";
 import ProfileInfo from "../Cards/ProfileInfo";
+import Search from "./Search";
+import { useState } from "react";
 
 const Navbar = () => {
+    const [searchQuery, setSearchQuery] = useState("");
+
     const navigate = useNavigate();
+
+    const handleSearch = () => { };
+
+    const onClearSearch = () => {
+        setSearchQuery("");
+    }
 
     const onLogout = () => {
         navigate("/login");
@@ -15,6 +25,10 @@ const Navbar = () => {
                 <Link to="/" className="text-2xl font-bold text-blue-600">
                     NotesApp
                 </Link>
+                <Search value={searchQuery} onChange={({ target }) => {
+                    setSearchQuery(target.value)
+                }} handleSearch={handleSearch} onClearSearch={onClearSearch} />
+
                 <ProfileInfo onLogout={onLogout} />
 
             </div>
