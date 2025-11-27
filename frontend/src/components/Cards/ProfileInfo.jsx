@@ -1,5 +1,5 @@
 
-const ProfileInfo = () => {
+const ProfileInfo = ({ userInfo, onLogout }) => {
 
     const getInitials = (name) => {
         if (!name) return "";
@@ -15,11 +15,11 @@ const ProfileInfo = () => {
     }
     return (
         <div className='flex items-center gap-3'>
-            <div className='w-12 h-12 flex items-center justify-center rounded-full text-slate-950 font-medium bg-slate-100'>{getInitials("Rohit Sharma")}</div>
+            <div className='w-12 h-12 flex items-center justify-center rounded-full text-slate-950 font-medium bg-slate-100'>{getInitials(userInfo?.fullName)}</div>
 
             <div>
-                <p className='text-sm font-medium'>Rohit Sharma</p>
-                <button className='txet-sm underline text-slate-700'>Logout</button>
+                <p className='text-sm font-medium'>{userInfo?.fullName}</p>
+                <button onClick={onLogout} className='txet-sm underline text-slate-700'>Logout</button>
             </div>
         </div>
     )

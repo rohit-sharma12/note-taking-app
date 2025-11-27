@@ -1,13 +1,15 @@
-import Navbar from "../components/Navbar/Navbar"
+import Navbar from "../components/Navbar/Navbar";
 import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import axiosInstance from "../utils/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [errors, setErrors] = useState({});
-
+    const [error, setError] = useState({});
+    const navigate = useNavigate();
 
     const validateForm = () => {
         const newErrors = {};
@@ -24,18 +26,35 @@ const Login = () => {
             newErrors.password = "Password must be at least 6 characters";
         }
 
-        setErrors(newErrors);
-
+        setError(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!validateForm()) return;
 
-        console.log("Login Successful:", { email, password });
+        try {
+            const response = await axiosInstance.post("/api/user/login", {
+                email,
+                password,
+            });
+
+            if (response.data.accessToken) {
+                localStorage.setItem("token", response.data.accessToken);
+                navigate("/dashboard");
+            }
+
+        } catch (error) {
+            if (error.response?.data?.message) {
+                setError({ general: error.response.data.message });
+            } else {
+                setError({ general: "Something went wrong. Please try again." });
+            }
+        }
     };
+
     return (
         <>
             <Navbar />
@@ -47,6 +66,12 @@ const Login = () => {
                         Login
                     </h2>
 
+                    {error.general && (
+                        <p className="mb-3 text-center text-red-600 font-medium">
+                            {error.general}
+                        </p>
+                    )}
+
                     <form onSubmit={handleSubmit} className="space-y-5">
 
                         <div>
@@ -55,16 +80,19 @@ const Login = () => {
                             </label>
                             <input
                                 type="text"
-                                className={`w-full p-3 border rounded-lg outline-none focus:ring-2 ${errors.email
-                                    ? "border-red-500 focus:ring-red-400"
-                                    : "focus:ring-blue-500"
+                                className={`w-full p-3 border rounded-lg outline-none focus:ring-2 ${error.email
+                                        ? "border-red-500 focus:ring-red-400"
+                                        : "focus:ring-blue-500"
                                     }`}
                                 placeholder="Enter your email"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    setError((prev) => ({ ...prev, email: "" }));
+                                }}
                             />
-                            {errors.email && (
-                                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                            {error.email && (
+                                <p className="text-red-500 text-sm mt-1">{error.email}</p>
                             )}
                         </div>
 
@@ -75,16 +103,18 @@ const Login = () => {
 
                             <input
                                 type={showPassword ? "text" : "password"}
-                                className={`w-full p-3 pr-12 border rounded-lg outline-none focus:ring-2 ${errors.password
-                                    ? "border-red-500 focus:ring-red-400"
-                                    : "focus:ring-blue-500"
+                                className={`w-full p-3 pr-12 border rounded-lg outline-none focus:ring-2 ${error.password
+                                        ? "border-red-500 focus:ring-red-400"
+                                        : "focus:ring-blue-500"
                                     }`}
                                 placeholder="Enter your password"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                    setError((prev) => ({ ...prev, password: "" }));
+                                }}
                             />
 
-                            {/* Eye Icon */}
                             <span
                                 className="absolute right-3 top-12 transform -translate-y-1/2 cursor-pointer text-gray-600"
                                 onClick={() => setShowPassword(!showPassword)}
@@ -96,12 +126,11 @@ const Login = () => {
                                 )}
                             </span>
 
-                            {/* Validation Error */}
-                            {errors.password && (
-                                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                            {error.password && (
+                                <p className="text-red-500 text-sm mt-1">{error.password}</p>
                             )}
                         </div>
-                        {/* Submit Button */}
+
                         <button
                             type="submit"
                             className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
@@ -109,18 +138,18 @@ const Login = () => {
                             Login
                         </button>
 
-                        {/* Signup Link */}
                         <p className="text-center text-gray-600">
                             Don't have an account?{" "}
                             <a href="/signup" className="text-blue-600 hover:underline">
                                 Create account
                             </a>
                         </p>
+
                     </form>
                 </div>
             </div>
         </>
-    )
-}
+    );
+};
 
-export default Login
+export default Login;
