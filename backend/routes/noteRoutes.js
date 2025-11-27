@@ -140,7 +140,7 @@ router.put("/update-note-pinned/:noteId", authenticationToken, async (req, res) 
 })
 
 router.get("/search-notes", authenticationToken, async (req, res) => {
-    const userId = req.user.id; // user id from token
+    const userId = req.user.id; 
     const { query } = req.query;
 
     if (!query) {
@@ -152,7 +152,7 @@ router.get("/search-notes", authenticationToken, async (req, res) => {
 
     try {
         const matchingNotes = await Note.find({
-            userId: userId,   // FIXED
+            userId: userId,   
             $or: [
                 { title: { $regex: query, $options: "i" } },
                 { content: { $regex: query, $options: "i" } },
@@ -166,7 +166,7 @@ router.get("/search-notes", authenticationToken, async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error); // show actual error in backend terminal
+        console.error(error); 
         return res.status(500).json({
             error: true,
             message: "Internal Server Error"
